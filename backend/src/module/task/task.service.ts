@@ -1,4 +1,8 @@
 import type { Context } from 'hono'
+import type {
+	TaskUpdateInput,
+	TaskWhereInput
+} from '../../../prisma/generated/prisma/models'
 import type { ICreateTaskDto, IUpdateTaskDto, TFilter } from './dto/task.dto'
 
 export class TaskService {
@@ -28,15 +32,21 @@ export class TaskService {
 		if (!member || member.projectId !== projectId)
 			throw new Error('Assigned user is not part of this project')
 
-		return await prisma.task.create({
+		if (!title || title.length < 2) throw new Error('Title too short')
+		if (description && description.length > 5000)
+			throw new Error('Description too long')
+
+		const task = await prisma.task.create({
 			data: {
-				projectId: projectId,
-				title: title,
-				description: description,
-				assignedToDashboardUserId: assignedToDashboardUserId,
+				projectId,
+				title,
+				description,
+				assignedToDashboardUserId,
 				createdBy: managerId
 			}
 		})
+
+		return task
 	}
 
 	async getTasks(c: Context, projectId: string, filter?: TFilter) {
@@ -49,23 +59,26 @@ export class TaskService {
 		const project = await prisma.project.findFirst({
 			where: {
 				id: projectId,
-				OR: [{ managerId: userId }, { members: { some: { userId } } }]
+				OR: [{ managerId: userId }, { dashboardUsers: { some: { userId } } }]
 			}
 		})
 		if (!project) throw new Error('Access denied')
 
-		let where: any = { projectId }
+		let where: TaskWhereInput = { projectId }
 
-		if (filter === 'pending') where.status = 'PENDING'
-		if (filter === 'completed') where.status = 'COMPLETED'
+		if (filter === 'pending') {
+			where.status = 'PENDING'
+		} else if (filter === 'completed') {
+			where.status = 'COMPLETED'
+		} else {
+			const oneWeekAgo = new Date()
+			oneWeekAgo.setDate(oneWeekAgo.getDate() - 7)
 
-		const oneWeekAgo = new Date()
-		oneWeekAgo.setDate(oneWeekAgo.getDate() - 7)
-
-		if (!filter || filter !== 'completed') {
 			where.OR = [
 				{ status: 'PENDING' },
-				{ AND: [{ status: 'COMPLETED' }, { completedAt: { gte: oneWeekAgo } }] }
+				{
+					AND: [{ status: 'COMPLETED' }, { completedAt: { gte: oneWeekAgo } }]
+				}
 			]
 		}
 
@@ -73,8 +86,9 @@ export class TaskService {
 			where,
 			orderBy: { createdAt: 'desc' },
 			include: {
-				dashboardUser: true,
-				project: true
+				dashboardUser: {
+					select: { id: true, name: true, avatar: true }
+				}
 			}
 		})
 	}
@@ -89,26 +103,31 @@ export class TaskService {
 
 		const task = await prisma.task.findUnique({
 			where: { id: taskId },
-			include: { project: true }
+			include: {
+				project: true,
+				dashboardUser: true
+			}
 		})
 
 		if (!task) throw new Error('Task not found')
 
 		const isManager = task.project.managerId === userId
 
-		const isAssignedUser = task.assignedToDashboardUserId === userId
+		const isAssignedUser = task.dashboardUser?.userId === userId
 
 		if (!isManager && !isAssignedUser) throw new Error('Forbidden')
 
-		const data: any = {}
+		const data: TaskUpdateInput = {}
 
-		if (title) data.title = title
-		if (description) data.description = description
+		if (title !== undefined) data.title = title
+		if (description !== undefined) data.description = description
 
-		if (status) {
+		if (status !== undefined) {
+			if (status !== 'PENDING' && status !== 'COMPLETED')
+				throw new Error('Invalid status value')
+
 			data.status = status
-			if (status === 'COMPLETED') data.completedAt = new Date()
-			if (status === 'PENDING') data.completedAt = null
+			data.completedAt = status === 'COMPLETED' ? new Date() : null
 		}
 
 		return await prisma.task.update({
