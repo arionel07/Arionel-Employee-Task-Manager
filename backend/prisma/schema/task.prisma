@@ -1,0 +1,26 @@
+enum TaskStatus {
+  PENDING
+  COMPLETED
+}
+
+model Task {
+  id          String     @id @default(uuid())
+  title       String
+  description String?
+  status      TaskStatus @default(PENDING)
+  completedAt DateTime?  @map("completed_at")
+
+  assignedToDashboardUserId String
+  projectId                 String
+  createdBy                 String @map("created_by")
+
+  dashboardUser DashboardUser @relation("DashboardUserTasks", fields: [assignedToDashboardUserId], references: [id])
+  project       Project       @relation(fields: [projectId], references: [id])
+  // Если нужно, можно добавить прямую связь с User
+  assignedUser  User?         @relation("AssignedTasks", fields: [createdBy], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("task")
+}

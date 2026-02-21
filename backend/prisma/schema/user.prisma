@@ -1,0 +1,31 @@
+enum Role {
+  MANAGER
+  EMPLOYEE
+}
+
+model User {
+  id       String  @id @default(uuid())
+  name     String
+  nickname String?
+  avatar   String?
+  email    String  @unique
+  password String
+  role     Role    @default(EMPLOYEE)
+
+  // Задачи, назначенные пользователю через DashboardUser
+  dashboardUsers DashboardUser[] @relation("UserDashboardUsers")
+
+  // Задачи, назначенные напрямую
+  tasks Task[] @relation("AssignedTasks")
+
+  // Проекты, которыми управляет пользователь
+  managedProjects Project[] @relation("ManagedProjects")
+
+  // DashboardUsers, которыми управляет менеджер
+  managerDashboardUsers DashboardUser[] @relation("ManagerDashboard")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("user")
+}
