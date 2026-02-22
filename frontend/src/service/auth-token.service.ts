@@ -1,0 +1,28 @@
+import Cookies from 'js-cookie'
+/**
+ * Frontend does not store tokens in localStorage.
+ * All requests uses cookie (HttpOnly) for accessToken.
+ * Refresh token completely on backend.
+ */
+
+export enum EnumTokens {
+	'ACCESS_TOKEN' = 'accessToken',
+	'REFRESH_TOKEN' = 'refreshToken'
+}
+
+export const getAccessToken = () => {
+	const accessToken = Cookies.get(EnumTokens.ACCESS_TOKEN)
+	return accessToken || null
+}
+
+export const saveTokenToStorage = (accessToken: string) => {
+	Cookies.set(EnumTokens.ACCESS_TOKEN, accessToken, {
+		domain: 'localhost',
+		sameSite: 'strict',
+		expires: 1
+	})
+}
+
+export const removeFromStorage = () => {
+	Cookies.remove(EnumTokens.ACCESS_TOKEN)
+}
