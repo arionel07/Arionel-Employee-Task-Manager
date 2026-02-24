@@ -2,6 +2,7 @@ import { authService } from '@/service/auth.service'
 import { userService } from '@/service/user.service'
 import type { IUser } from '@/types/entities/user.entities'
 import { atom } from 'jotai'
+import { toast } from 'sonner'
 
 export const currentUserAtom = atom<IUser | null>(null)
 
@@ -28,5 +29,6 @@ export const logoutAtom = atom(null, async (_get, set) => {
 		await authService.logout?.()
 	} finally {
 		set(currentUserAtom, null)
+		toast.success('Logged out successfully')
 	}
 })

@@ -1,4 +1,4 @@
 import { DEFAULT_THEME } from '@/config/theme.config'
-import { atom } from 'jotai'
+import { atomWithStorage } from 'jotai/utils'
 
-export const themeAtom = atom<string>(DEFAULT_THEME)
+export const themeAtom = atomWithStorage<string>('theme', DEFAULT_THEME)

@@ -6,14 +6,37 @@
 
 [x] - store
 
-[] - Middleware
+[x] - Middleware
 
-[] - provider
+[x] - provider
 
-[] - hooks
+[-] - hooks
 
-[] - components
+[x] - components
 
-[] - auth page
+[x] - auth page
 
-[] - 404 page
+[x] - 404 page
+
+[x] - auth.provider change if(loader) null to Loader ui component
+
+Logo - ArionelETM
+
+[x] - исправить после login или register чтобы нельзя было обратно попасть на
+эти страницы пока не сделаеш logout
+
+[x] - исправить notfound router
+
+[] - settings page
+
+[] - profile page
+
+[] - project page
+
+[] - task page
+
+[] - users page
+
+[] - search users
+
+[] - search tasks

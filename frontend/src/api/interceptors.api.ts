@@ -1,74 +1,50 @@
-import {
-	getAccessToken,
-	removeFromStorage,
-	saveTokenToStorage
-} from '@/service/auth-token.service'
+import { getAccessToken, removeFromStorage } from '@/service/auth-token.service'
 import { authService } from '@/service/auth.service'
 import { api } from './api'
+import { errorCatch } from './error.api'
 
-let isRefreshing = false
-let queque: ((token: string) => void)[] = []
+const apiClassic = api
 
-const resolveQueue = (token: string) => {
-	queque.forEach(cb => cb(token))
-	queque = []
-}
+const apiWithAuth = api
 
-api.interceptors.request.use(config => {
+apiWithAuth.interceptors.request.use(config => {
 	const accessToken = getAccessToken()
 
-	config.headers = config.headers ?? {}
-
-	if (accessToken) {
+	if (config.headers && accessToken)
 		config.headers.Authorization = `Bearer ${accessToken}`
-	}
 
 	return config
 })
 
-api.interceptors.response.use(
+apiWithAuth.interceptors.response.use(
 	config => config,
 	async error => {
 		const originalRequest = error.config
 
-		if (!originalRequest) return Promise.reject(error)
-
-		if (originalRequest.url?.includes('/refresh')) {
+		if (originalRequest.url.includes('/refresh')) {
 			removeFromStorage()
-			window.location.href = '/login'
 			return Promise.reject(error)
 		}
 
-		if (error?.response?.status === 401 && !originalRequest._isRetry) {
-			if (isRefreshing) {
-				return new Promise(resolve => {
-					queque.push((token: string) => {
-						originalRequest.headers.Authorization = `Bearer ${token}`
-						resolve(api(originalRequest))
-					})
-				})
-			}
+		if (
+			(error?.response?.status === 401 ||
+				errorCatch(error) === 'jwt expired' ||
+				errorCatch(error) === 'jwt must be provided') &&
+			error.config &&
+			!error.config._isRetry
+		) {
 			originalRequest._isRetry = true
-			isRefreshing = true
 			try {
-				const res = await authService.refresh()
-				const saveAccess = res.data.accessToken
-
-				if (!saveAccess) throw new Error('No access token')
-
-				saveTokenToStorage(saveAccess)
-				resolveQueue(saveAccess)
-
-				originalRequest.headers.Authorization = `Bearer ${saveAccess}`
-				return api(originalRequest)
+				await authService.getNewTokens()
+				return apiWithAuth.request(originalRequest)
 			} catch (error) {
 				removeFromStorage()
-				window.location.href = '/login'
-			} finally {
-				isRefreshing = false
+				return Promise.reject(error)
 			}
 		}
 
-		return Promise.reject(error)
+		throw error
 	}
 )
+
+export { apiClassic, apiWithAuth }

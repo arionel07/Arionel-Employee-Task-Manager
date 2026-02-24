@@ -1,4 +1,4 @@
-import { api } from '@/api/api'
+import { apiClassic, apiWithAuth } from '@/api/interceptors.api'
 import { ROUTES } from '@/constants/route.constant'
 import type {
 	IAuthLoginForm,
@@ -10,7 +10,7 @@ import { removeFromStorage, saveTokenToStorage } from './auth-token.service'
 class AuthService {
 	auth = ROUTES.AUTH
 	async register(data: IAuthRegisterForm) {
-		const response = await api.post<IAuthResponse>(
+		const response = await apiClassic.post<IAuthResponse>(
 			`${this.auth}/register`,
 			data
 		)
@@ -21,8 +21,11 @@ class AuthService {
 	}
 
 	async login(data: IAuthLoginForm) {
-		const response = await api.post<IAuthResponse>(`${this.auth}/login`, data)
-
+		const response = await apiClassic.post<IAuthResponse>(
+			`${this.auth}/login`,
+			data
+		)
+		//console.log('authService login service:', response.data)
 		if (response.data.accessToken) saveTokenToStorage(response.data.accessToken)
 
 		return response
@@ -32,15 +35,21 @@ class AuthService {
 		/**
 		 * Logout — deletes cookie on the backend
 		 */
-		const response = await api.post<boolean>(`${this.auth}/logout`)
+		const response = await apiClassic.post<boolean>(`${this.auth}/logout`)
 
 		if (response.data) removeFromStorage()
 
 		return response
 	}
 
-	async refresh() {
-		return await api.post<IAuthResponse>(`${this.auth}/refresh`)
+	async getNewTokens() {
+		const response = await apiWithAuth.post<IAuthResponse>(
+			`${this.auth}/refresh`
+		)
+
+		if (response.data.accessToken) saveTokenToStorage(response.data.accessToken)
+
+		return response
 	}
 }
 
