@@ -27,6 +27,8 @@ Logo - ArionelETM
 
 [x] - исправить notfound router
 
+[] - доделать sideBar ([]createButton []Projects []ProjectSwitcher)
+
 [] - settings page
 
 [] - profile page

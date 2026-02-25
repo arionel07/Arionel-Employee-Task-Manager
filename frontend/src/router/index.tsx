@@ -3,6 +3,8 @@ import { LoginPage } from '@/app/pages/auth/Login'
 import { RegisterPage } from '@/app/pages/auth/Register'
 import { DashboardPage } from '@/app/pages/dashboard/DashboardPage'
 import { NotFoundPage } from '@/app/pages/notFound/NotFounds'
+import { ProfilePage } from '@/app/pages/profile/ProfilePage'
+import { SettingPage } from '@/app/pages/settings/SettingPage'
 import { Layout } from '@/components/layout/Layout'
 import { requireAuth, requireGuest } from '@/middleware/auth.middleware'
 import {
@@ -32,6 +34,18 @@ const indexRoute = createRoute({
 	getParentRoute: () => dashboardRoute,
 	path: '/',
 	component: DashboardPage
+})
+
+const settingsRoute = createRoute({
+	getParentRoute: () => dashboardRoute,
+	path: '/settings',
+	component: SettingPage
+})
+
+const profileRoute = createRoute({
+	getParentRoute: () => dashboardRoute,
+	path: '/profile',
+	component: ProfilePage
 })
 
 // const projectsRoute = createRoute({
@@ -81,7 +95,9 @@ const notFoundRoute = createRoute({
 const routeTree = rootRoute.addChildren([
 	protectedRoute.addChildren([
 		dashboardRoute.addChildren([
-			indexRoute
+			indexRoute,
+			settingsRoute,
+			profileRoute
 			// 		projectsRoute,
 			// 		projectDetailRoute,
 			// 		taskDetailRoute
