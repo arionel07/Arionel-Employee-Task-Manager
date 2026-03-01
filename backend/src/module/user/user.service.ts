@@ -39,14 +39,58 @@ export class UserService {
 			where: { id },
 			select: {
 				...userAllSelect,
-				tasks: userTaskSelect,
-				dashboardUsers: userDashboardSelect
+				dashboardUsers: {
+					select: {
+						id: true,
+						userId: true,
+						role: true,
+						name: true,
+						nickname: true,
+						avatar: true,
+						project: {
+							select: {
+								id: true,
+								name: true,
+								description: true,
+								managerId: true,
+								manager: { select: { id: true, name: true } },
+								dashboardUsers: {
+									select: { id: true, name: true, avatar: true, role: true }
+								}
+							}
+						},
+						tasks: {
+							select: {
+								id: true,
+								title: true,
+								description: true,
+								status: true,
+								completedAt: true,
+								createdAt: true,
+								updatedAt: true,
+								projectId: true,
+								createdBy: true,
+								assignedToDashboardUserId: true,
+								project: {
+									select: {
+										id: true,
+										name: true,
+										manager: { select: { id: true, name: true } }
+									}
+								}
+							}
+						}
+					}
+				}
 			}
 		})
 
 		if (!user) throw new Error('User not found')
 
-		return user
+		// Собираем задачи из всех dashboardUsers
+		const tasks = user.dashboardUsers.flatMap(du => du.tasks)
+
+		return { ...user, tasks }
 	}
 	async updateMyProfile(c: Context, dto: IUpdateUserDto) {
 		if (!dto.name && !dto.nickname && !dto.avatar)

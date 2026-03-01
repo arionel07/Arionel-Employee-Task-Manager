@@ -26,9 +26,16 @@ export interface ITaskListItem extends ITaskBase {
 		name?: string | null
 		avatar?: string | null
 	}
+	project?: {
+		manager?: { name?: string | null }
+	}
 }
 
 export interface ITaskDetailed extends ITask {
 	project: IProject
 	dashboardUser: IDashboardUser
+}
+
+export function isTaskDetailed(task: ITask): task is ITaskDetailed {
+	return 'project' in task && 'dashboardUser' in task
 }

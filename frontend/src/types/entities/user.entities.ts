@@ -1,6 +1,6 @@
 import type { TId, TIsoDate, TUserRole } from '../common.type'
 import type { IDashboardUser } from './dashboardUser.entities'
-import type { ITask } from './task.entities'
+import type { ITaskDetailed } from './task.entities'
 
 export interface IUser {
 	id: TId
@@ -11,8 +11,6 @@ export interface IUser {
 	role: TUserRole
 	createdAt: TIsoDate
 	updatedAt: TIsoDate
-
 	dashboardUsers?: IDashboardUser[]
-	tasks?: ITask[]
-	// if new Date() then update & created change to Date
+	tasks?: ITaskDetailed[] // ← ITaskDetailed вместо ITask
 }

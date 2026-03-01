@@ -3,6 +3,8 @@ import { userService } from '@/service/user.service'
 import type { IUser } from '@/types/entities/user.entities'
 import { atom } from 'jotai'
 import { toast } from 'sonner'
+import { currentProjectAtom, projectsAtom } from './project.store'
+import { tasksAtom } from './task.store'
 
 export const currentUserAtom = atom<IUser | null>(null)
 
@@ -29,6 +31,9 @@ export const logoutAtom = atom(null, async (_get, set) => {
 		await authService.logout?.()
 	} finally {
 		set(currentUserAtom, null)
+		set(projectsAtom, [])
+		set(currentProjectAtom, null)
+		set(tasksAtom, [])
 		toast.success('Logged out successfully')
 	}
 })

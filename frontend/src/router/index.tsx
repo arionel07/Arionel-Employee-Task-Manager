@@ -4,6 +4,9 @@ import { RegisterPage } from '@/app/pages/auth/Register'
 import { DashboardPage } from '@/app/pages/dashboard/DashboardPage'
 import { NotFoundPage } from '@/app/pages/notFound/NotFounds'
 import { ProfilePage } from '@/app/pages/profile/ProfilePage'
+import { ProjectDetailPage } from '@/app/pages/project/ProjectDetailPage'
+import { ProjectList } from '@/app/pages/project/ProjectList'
+import { TaskPage } from '@/app/pages/project/tasks/TaskPage'
 import { SettingPage } from '@/app/pages/settings/SettingPage'
 import { Layout } from '@/components/layout/Layout'
 import { requireAuth, requireGuest } from '@/middleware/auth.middleware'
@@ -48,23 +51,29 @@ const profileRoute = createRoute({
 	component: ProfilePage
 })
 
-// const projectsRoute = createRoute({
-// 	getParentRoute: () => dashboardRoute,
-// 	path: '/project'
-// 	//component: ProjectsPage
-// })
+const userProfileRoute = createRoute({
+	getParentRoute: () => dashboardRoute,
+	path: '/profile/$userId',
+	component: ProfilePage
+})
 
-// const projectDetailRoute = createRoute({
-// 	getParentRoute: () => dashboardRoute,
-// 	path: '/project/:projectId'
-// 	//component: ProjectDetailPage
-// })
+const projectItemRoute = createRoute({
+	getParentRoute: () => dashboardRoute,
+	path: `/project/$projectId`,
+	component: ProjectDetailPage
+})
 
-// const taskDetailRoute = createRoute({
-// 	getParentRoute: () => dashboardRoute,
-// 	path: '/task/project/:projectId'
-// 	//component: TaskDetailPage
-// })
+const projectsRoute = createRoute({
+	getParentRoute: () => dashboardRoute,
+	path: '/projects',
+	component: ProjectList
+})
+
+const taskDetailRoute = createRoute({
+	getParentRoute: () => dashboardRoute,
+	path: '/tasks',
+	component: TaskPage
+})
 
 //const managerRoute
 
@@ -97,8 +106,11 @@ const routeTree = rootRoute.addChildren([
 		dashboardRoute.addChildren([
 			indexRoute,
 			settingsRoute,
-			profileRoute
-			// 		projectsRoute,
+			profileRoute,
+			projectItemRoute,
+			projectsRoute,
+			taskDetailRoute,
+			userProfileRoute
 			// 		projectDetailRoute,
 			// 		taskDetailRoute
 		])

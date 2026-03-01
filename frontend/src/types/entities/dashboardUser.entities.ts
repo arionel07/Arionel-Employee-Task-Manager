@@ -6,12 +6,22 @@ export interface IDashboardUser {
 	userId: TId
 	projectId: TId
 	managerId: TId
-
 	name?: string | null
 	nickname?: string | null
 	avatar?: string | null
-
 	role: TUserRole
-
 	user?: IUser
+	project?: {
+		id: TId
+		name: string
+		description?: string | null
+		managerId: TId
+		manager?: { id: TId; name: string; email: string }
+		dashboardUsers?: {
+			id: TId
+			name?: string | null
+			avatar?: string | null
+			role: TUserRole
+		}[]
+	}
 }

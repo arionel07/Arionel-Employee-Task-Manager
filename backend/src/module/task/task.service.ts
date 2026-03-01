@@ -66,7 +66,7 @@ export class TaskService {
 
 		let where: TaskWhereInput = { projectId }
 
-		if (filter === 'pending') {
+		if (filter === 'active') {
 			where.status = 'PENDING'
 		} else if (filter === 'completed') {
 			where.status = 'COMPLETED'
@@ -88,6 +88,9 @@ export class TaskService {
 			include: {
 				dashboardUser: {
 					select: { id: true, name: true, avatar: true }
+				},
+				project: {
+					select: { manager: { select: { name: true } } }
 				}
 			}
 		})

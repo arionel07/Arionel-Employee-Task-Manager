@@ -54,8 +54,8 @@ export function HeaderProfile() {
 								/>
 							</div>
 							<div className="ml-3">
-								<p className="text-sm font-medium text-zinc-900 dark:text-zinc-50">
-									{user?.nickname || 'user'}
+								<p className="truncate max-w-22 text-sm font-medium text-zinc-900 dark:text-zinc-50">
+									@{user?.nickname || 'no nick'}
 								</p>
 								<p className="text-xs text-zinc-500 truncate">
 									{user?.email || 'your@example.com'}
@@ -64,7 +64,8 @@ export function HeaderProfile() {
 						</div>
 
 						<Link
-							to={'/profile'}
+							to={'/profile/$userId'}
+							params={{ userId: user?.id ?? '' }}
 							onClick={() => setOpen(false)}
 							className="flex rounded-lg items-center gap-2 px-4 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100  dark:hover:bg-zinc-800 transition-colors"
 						>

@@ -76,6 +76,7 @@ export class ProjectService {
 				dashboardUsers: {
 					select: {
 						id: true,
+						userId: true,
 						name: true,
 						nickname: true,
 						avatar: true,

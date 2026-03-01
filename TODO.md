@@ -27,18 +27,26 @@ Logo - ArionelETM
 
 [x] - исправить notfound router
 
-[] - доделать sideBar ([]createButton []Projects []ProjectSwitcher)
+[] - доделать sideBar ([]createButton []Projects [x]ProjectSwitcher)
 
-[] - settings page
+[] - добавить progress в sidebar
 
-[] - profile page
+[x] - settings page
 
-[] - project page
+[x] - profile page
 
-[] - task page
+[x] - project page
+
+[] - сделать переключения между tasks | users
+
+[] в профиле сделать projects и tasks
+
+[x] - task page
 
 [] - users page
 
 [] - search users
 
 [] - search tasks
+
+[] - добавить всем active в header в profile в sidebar
